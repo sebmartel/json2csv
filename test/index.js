@@ -17,231 +17,285 @@ async.parallel(loadFixtures(csvFixtures), function (err) {
     /*eslint-enable no-console*/
   }
 
-  test('should throw if no callback', function (t) {
-    t.throws(function () {
-      json2csv({
-        data: jsonDefault
-      });
-    }, /Callback is required/);
-    t.end();
-  });
-
   test('should error if fieldNames don\'t line up to fields', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       field: ['carModel'],
       fieldNames: ['test', 'blah']
-    }, function (error, csv) {
-      t.equal(error.message, 'fieldNames and fields should be of the same length, if fieldNames is provided.');
+    };
+    function _validate(err, csv) {
+      t.equal(err.message, 'fieldNames and fields should be of the same length, if fieldNames is provided.');
       t.notOk(csv);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+
+    var csv;
+    try {
+      csv = json2csv(params);
+    } catch(e) {
+      _validate(e, csv);
+    }
+    t.end();
   });
 
   test('should parse json to csv', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price', 'color']
-    }, function (error, csv) {
-      t.error(error);
+    };
+    function _validate(err, csv) {
+      t.error(err);
       t.equal(csv, csvFixtures.default);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should parse json to csv without fields', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault
-    }, function (error, csv) {
-      t.error(error);
+    };
+    function _validate(err, csv) {
+      t.error(err);
       t.equal(csv, csvFixtures.default);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should parse json to csv without column title', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price', 'color'],
       hasCSVColumnTitle: false
-    }, function (error, csv) {
-      t.error(error);
+    };
+    function _validate(err, csv) {
+      t.error(err);
       t.equal(csv, csvFixtures.withoutTitle);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should parse data:{} to csv with only column title', function (t) {
-    json2csv({
+    var params = {
       data: {},
       fields: ['carModel', 'price', 'color']
-    }, function (error, csv) {
-      t.error(error);
+    };
+    function _validate(err, csv) {
+      t.error(err);
       t.equal(csv, '"carModel","price","color"');
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should parse data:[null] to csv with only column title', function (t) {
-    json2csv({
+    var params = {
       data: [null],
       fields: ['carModel', 'price', 'color']
-    }, function (error, csv) {
-      t.error(error);
+    };
+    function _validate(err, csv) {
+      t.error(err);
       t.equal(csv, '"carModel","price","color"');
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should output only selected fields', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price']
-    }, function (error, csv) {
-      t.error(error);
+    };
+    function _validate(err, csv) {
+      t.error(err);
       t.equal(csv, csvFixtures.selected);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should output not exist field with empty value', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['first not exist field', 'carModel', 'price', 'not exist field', 'color']
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.withNotExistField);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should output reversed order', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['price', 'carModel']
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.reversed);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should output a string', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price', 'color']
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.ok(typeof csv === 'string');
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should escape quotes with double quotes', function (t) {
-    json2csv({
+    var params = {
       data: jsonQuotes,
       fields: ['a string']
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.quotes);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should use a custom delimiter when \'quotes\' property is present', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price'],
       quotes: '\''
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.withSimpleQuotes);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should be able to don\'t output quotes when using \'quotes\' property', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price'],
       quotes: ''
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.withoutQuotes);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should use a custom delimiter when \'del\' property is present', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price', 'color'],
       del: '\t'
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.tsv);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should use a custom eol character when \'eol\' property is present', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price', 'color'],
       eol: ';'
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.eol);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should use a custom eol character when \'newLine\' property is present', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price', 'color'],
       newLine: '\r\n'
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.newLine);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should name columns as specified in \'fieldNames\' property', function (t) {
-    json2csv({
+    var params = {
       data: jsonDefault,
       fields: ['carModel', 'price'],
       fieldNames: ['Car Model', 'Price USD']
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.fieldNames);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should output nested properties', function (t) {
-    json2csv({
+    var params = {
       data: jsonNested,
       fields: ['car.make', 'car.model', 'price', 'color', 'car.ye.ar'],
       fieldNames: ['Make', 'Model', 'Price', 'Color', 'Year'],
       nested: true
-    }, function (error, csv) {
+    };
+    function _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.nested);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 
   test('should output default values when missing data', function (t) {
-    json2csv({
+    params = {
       data: jsonDefaultValue,
       fields: ['carModel', 'price'],
       defaultValue: 'NULL'
-    }, function (error, csv) {
+    };
+    function  _validate(error, csv) {
       t.error(error);
       t.equal(csv, csvFixtures.defaultValue);
-      t.end();
-    });
+    }
+    json2csv(params, _validate);
+    _validate(null, json2csv(params));
+    t.end();
   });
 });
